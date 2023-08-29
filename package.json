@@ -9,7 +9,8 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
-		"format": "prettier --plugin-search-dir . --write ."
+		"format": "prettier --plugin-search-dir . --write .",
+		"build-contracts": "soroban contract bindings typescript --wasm ./target/wasm32-unknown-unknown/release/soroban_fib_faucet_contract.wasm --id $(cat ./.soroban-fib-faucet/fib_faucet_id) --rpc-url $(cat ./.soroban-fib-faucet/rpc-url) --network-passphrase \"$(cat ./.soroban-fib-faucet/passphrase)\" --output-dir ./.soroban/fib-faucet-contract --contract-name fib-faucet-contract"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
@@ -31,5 +32,11 @@
 		"typescript": "^5.0.0",
 		"vite": "^4.4.2"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@stellar/freighter-api": "^1.6.0",
+		"bignumber.js": "^9.1.2",
+		"fib-faucet-contract": "file:.soroban/fib-faucet-contract",
+		"soroban-client": "^0.11.1"
+	}
 }
