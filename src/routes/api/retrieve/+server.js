@@ -1,17 +1,43 @@
 import { prisma } from '$lib/server/prisma'
+import { error, json } from '@sveltejs/kit'
+import { xdr } from 'soroban-client'
+import * as fibFaucetContract from 'fib-faucet-contract'
+import { PUBLIC_FIB_TOKEN_ID } from '$env/static/public'
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET() {
-    let numEventsStored = await prisma.sorobanEvent.count()
-    // let firstEvent = await prisma.sorobanEvent.findFirst()
-    const firstEvent = await prisma.sorobanEvent.findFirst({
-        orderBy: [{
-            id: 'desc',
-        }]
-    })
+    try {
+        // let numEventsStored = await prisma.sorobanEvent.count()
+        // let firstEvent = await prisma.sorobanEvent.findFirst()
+        const mintEvents = await prisma.sorobanEvent.findMany({
+            where: {
+                AND: {
+                    contract_id: {
+                        equals: PUBLIC_FIB_TOKEN_ID,
+                    },
+                    topic_1: {
+                        equals: 'AAAADwAAAARtaW50',
+                    },
+                },
+            },
+            orderBy: [
+                {
+                    id: 'desc',
+                },
+            ],
+        })
+        console.log()
 
-    return new Response(JSON.stringify({
-        num_events_stored: numEventsStored,
-        first_event: firstEvent,
-    }))
+        if (!mintEvents) throw 'no matching ingested events to retrieve'
+
+        // console.log('firstEvent topic_1', xdr.ScVal.fromXDR(firstEvent.topic_1, 'base64').value()?.toString())
+        // console.log('firstEvent.topic_1', mintEvents.topic_1)
+        // console.log('firstEvent.topic_2', mintEvents.topic_2)
+        // console.log('firstEvent.topic_3', mintEvents.topic_3)
+        // console.log('firstEvent.topic_4', mintEvents.topic_4)
+        // console.log('firstEvent.value', mintEvents.value)
+        return json(mintEvents)
+    } catch (/** @type {any} */ err) {
+        throw error(500, { message: err.toString() || 'error retrieving ingested events' })
+    }
 }

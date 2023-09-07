@@ -11,13 +11,8 @@ const server = new Server('https://rpc-futurenet.stellar.org')
 const filters = [
     {
         type: 'contract',
-        contractIds: [
-            PUBLIC_FIB_TOKEN_ID,
-            PUBLIC_XLM_TOKEN_ID,
-        ],
-        topics: [
-            ['*', '*', '*', '*']
-        ]
+        contractIds: [PUBLIC_FIB_TOKEN_ID],
+        topics: [['*', '*', '*', '*']],
     },
 ]
 
@@ -25,9 +20,11 @@ const filters = [
 export async function GET() {
     try {
         const latestEventIngested = await prisma.sorobanEvent.findFirst({
-            orderBy: [{
-                id: 'desc',
-            }]
+            orderBy: [
+                {
+                    id: 'desc',
+                },
+            ],
         })
 
         let events
@@ -45,7 +42,7 @@ export async function GET() {
                 startLedger: Math.ceil((latestLedger.sequence - LEDGERS_IN_A_DAY) / 100) * 100,
                 filters: filters,
             })
-        // console.log('events.events.length', events.events.length)
+            // console.log('events.events.length', events.events.length)
         }
 
         if (events.events?.length) {
@@ -62,14 +59,16 @@ export async function GET() {
                         topic_3: event.topic[2] || null,
                         topic_4: event.topic[3] || null,
                         value: event.value.xdr,
-                    }
+                    },
                 })
             })
         }
 
-        return new Response(JSON.stringify({
-            ingested_events: events.events?.length || 0
-        }))
+        return new Response(
+            JSON.stringify({
+                ingested_events: events.events?.length || 0,
+            })
+        )
     } catch (err) {
         console.error('error on ingest', err)
         throw error(500, { message: 'error ingesting events' })

@@ -10,20 +10,20 @@ export async function getLatestLedger() {
             method: 'getLatestLedger',
         }),
     })
-    .then(async (res) => {
-        if (res.ok) {
-            return res.json()
-        } else {
-            throw await res.json()
-        }
-    })
-    .then((res) => {
-        if (res.result) {
-            return res.result
-        } else {
-            throw res.error
-        }
-    })
+        .then(async (res) => {
+            if (res.ok) {
+                return res.json()
+            } else {
+                throw await res.json()
+            }
+        })
+        .then((res) => {
+            if (res.result) {
+                return res.result
+            } else {
+                throw res.error
+            }
+        })
 }
 
 /**
@@ -46,30 +46,28 @@ export async function getEvents(cursor, limit = 100) {
                     {
                         type: 'contract',
                         contractIds: [],
-                        topics: [
-                            ['*', '*', '*', '*']
-                        ]
-                    }
+                        topics: [['*', '*', '*', '*']],
+                    },
                 ],
                 pagination: {
                     limit,
-                    cursor: typeof cursor === 'string' ? cursor : undefined
-                }
-            }
+                    cursor: typeof cursor === 'string' ? cursor : undefined,
+                },
+            },
         }),
     })
-    .then(async (res) => {
-        if (res.ok) {
-            return res.json()
-        } else {
-            throw await res.json()
-        }
-    })
-    .then((res) => {
-        if (res.result) {
-            return res.result
-        } else {
-            throw res.error
-        }
-    })
+        .then(async (res) => {
+            if (res.ok) {
+                return res.json()
+            } else {
+                throw await res.json()
+            }
+        })
+        .then((res) => {
+            if (res.result) {
+                return res.result
+            } else {
+                throw res.error
+            }
+        })
 }

@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit'
+import { PUBLIC_FIB_ASSET_CODE, PUBLIC_FIB_ASSET_ISSUER } from '$env/static/public'
 import {
     Address,
     Asset,
@@ -12,8 +13,6 @@ import {
 
 const RPC_SERVER_URL = 'https://rpc-futurenet.stellar.org'
 const HORIZON_SERVER_URL = 'https://horizon-futurenet.stellar.org'
-const ASSET_CODE = 'FIB'
-const ASSET_ISSUER = 'GDWZ54JXFUHAXN4CX4M52EKT7QGF4V2L2JLFVS2NBF2QN6VV76WBTXQZ'
 
 /**
  * @param {string} pubkey
@@ -23,7 +22,6 @@ const ASSET_ISSUER = 'GDWZ54JXFUHAXN4CX4M52EKT7QGF4V2L2JLFVS2NBF2QN6VV76WBTXQZ'
 export const addFibTrustlineTransaction = async (pubkey, network) => {
     const server = new Server(RPC_SERVER_URL)
     let account = await server.getAccount(pubkey)
-    console.log('here is account', account)
 
     let tx = new TransactionBuilder(account, {
         fee: '100000',
@@ -38,13 +36,11 @@ export const addFibTrustlineTransaction = async (pubkey, network) => {
     })
         .addOperation(
             Operation.changeTrust({
-                asset: new Asset(ASSET_CODE, ASSET_ISSUER),
+                asset: new Asset(PUBLIC_FIB_ASSET_CODE, PUBLIC_FIB_ASSET_ISSUER),
             })
         )
         .setTimeout(TimeoutInfinite)
         .build()
-
-    console.log('here is tx', tx)
 
     return tx.toXDR()
 }
@@ -52,6 +48,7 @@ export const addFibTrustlineTransaction = async (pubkey, network) => {
 /**
  * @param {string} transactionXDR
  * @param {('PUBLIC'|'TESTNET'|'FUTURENET'|'STANDALONE')} network
+ * @returns {Promise<import('soroban-client').SorobanRpc.GetSuccessfulTransactionResponse|import('soroban-client').SorobanRpc.GetFailedTransactionResponse>}
  */
 export const submitTransaction = async (transactionXDR, network) => {
     const server = new Server(RPC_SERVER_URL)

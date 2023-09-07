@@ -4,40 +4,45 @@
 
     import freigtherApi from "@stellar/freighter-api"
 
-    import { addFibTrustlineTransaction, submitTransaction, buildContractSignupTransaction } from "$lib/utils/stellar"
+    import { PUBLIC_FIB_ASSET_CODE, PUBLIC_FIB_ASSET_ISSUER } from "$env/static/public"
+    import { addFibTrustlineTransaction, submitTransaction } from "$lib/soroban/transactions"
     import * as fibFaucetContract from 'fib-faucet-contract'
+    import { invalidate } from "$app/navigation"
 
-    const ASSET_CODE = 'FIB'
-    const ASSET_ISSUER = 'GDWZ54JXFUHAXN4CX4M52EKT7QGF4V2L2JLFVS2NBF2QN6VV76WBTXQZ'
+
+    // const ASSET_CODE = 'FIB'
+    // const ASSET_ISSUER = 'GDWZ54JXFUHAXN4CX4M52EKT7QGF4V2L2JLFVS2NBF2QN6VV76WBTXQZ'
 
     let publicKey = ''
     let network = ''
     let hasTrustline = false
     let hasFibToken = false
     let isDoingSomething = false
+
     const getFreighterStuff = async () => {
         isDoingSomething = true
+
         if (await freigtherApi.isConnected()) {
-            console.log("User has freighter!")
+            try {
+                publicKey = await freigtherApi.getPublicKey()
+                network = await freigtherApi.getNetwork()
+                await checkForFibTrustlineAndBalance()
+            } catch (err) {
+                isDoingSomething = false
+                throw error(400, { message: `error retrieving public key: ${err}`})
+            }
         }
 
-        try {
-            publicKey = await freigtherApi.getPublicKey()
-            network = await freigtherApi.getNetwork()
-        } catch (e) {
-            isDoingSomething = false
-            throw error(400, { message: `error retrieving public key: ${e}`})
-        }
         isDoingSomething = false
     }
 
-    const checkForFibTrustline = async () => {
+    const checkForFibTrustlineAndBalance = async () => {
         isDoingSomething = true
         let res = await fetch(`https://horizon-futurenet.stellar.org/accounts/${publicKey}`)
         let json = await res.json()
 
-        json.balances.map((/** @type {import('soroban-client').SorobanRpc.Balance} */ balance) => {
-            if (balance.asset_code === ASSET_CODE && balance.asset_issuer === ASSET_ISSUER) {
+        json.balances.map((/** @type {import('stellar-sdk').Horizon.BalanceLine} */ balance) => {
+            if ('asset_code' in balance && balance.asset_code === PUBLIC_FIB_ASSET_CODE && balance.asset_issuer === PUBLIC_FIB_ASSET_ISSUER) {
                 hasTrustline = true
                 if (parseFloat(balance.balance) > 0) {
                     hasFibToken = true
@@ -69,42 +74,32 @@
         isDoingSomething = true
 
         try {
-
-            // let something = await fibFaucetContract.signup(
-            //     { member: publicKey }, {
-            //         fee: 100,
-            //     }
-            // )
-            // console.log('here is the CONTRACT_ID', fibFaucetContract.CONTRACT_ID)
-            let something = await buildContractSignupTransaction(publicKey, network, fibFaucetContract.CONTRACT_ID)
-            // let something = await fibFaucetContract.isOpen()
-            console.log('here is something', something)
-
-            let signedTxXDR = await freigtherApi.signTransaction(something, { network })
-            console.log('here is signedTxXDR', signedTxXDR)
-
-            let sendResponse = await submitTransaction(signedTxXDR, network)
-            console.log('here is sendResponse', sendResponse)
-
+            await fibFaucetContract.signup(
+                { member: publicKey }, {
+                    fee: 100,
+                }
+            )
             hasFibToken = true
-        } catch (e) {
-            console.log("error becoming a member:", e)
+            await fetch('/api/ingest')
+            await invalidate('/api/retrieve')
+        } catch (err) {
+            console.log("error becoming a member:", err)
+            isDoingSomething = false
+            throw error(400, { message: 'error signing up' })
         }
 
         isDoingSomething = false
     }
 
-    onMount(() => {
-        getFreighterStuff().then(() => checkForFibTrustline())
-    })
+    onMount(() => getFreighterStuff())
 </script>
 
 <h2>Become a Member</h2>
 
 {#if hasFibToken}
-    <p>Looks like you're already a <code>FIB</code> member. Thanks! Unfortunately, you can't join again. Sorry 'bout that...</p>
+    <p>Looks like you're already a <code>FIB</code> member. Thanks!</p>
+    <p>Unfortunately, you can't join again. Sorry 'bout that...</p>
 {:else}
-    <p>Signup form goes here</p>
     {#if publicKey && !hasTrustline}
     <button class="btn btn-primary" on:click={addTrustline} disabled={isDoingSomething}>
         Add <code>FIB</code> Trustline

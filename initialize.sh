@@ -74,6 +74,10 @@ fi
 FIB_ADMIN_ADDRESS="$(soroban config identity address fibIssuer)"
 echo fibIssuer address is $FIB_ADMIN_ADDRESS
 
+echo Storing Stellar asset details in .env
+sed -i -r "s/^PUBLIC_FIB_ASSET_CODE='.*'$/PUBLIC_FIB_ASSET_CODE='${TOKEN_NAME}'/" ./.env
+sed -i -r "s/^PUBLIC_FIB_ASSET_ISSUER='.*'$/PUBLIC_FIB_ASSET_ISSUER='${FIB_ADMIN_ADDRESS}'/" ./.env
+
 # This will fail if the account already exists, but it'll still be fine.
 echo Fund fibIssuer account from friendbot
 curl --silent -X POST "$FRIENDBOT_URL?addr=$FIB_ADMIN_ADDRESS" >/dev/null
@@ -102,7 +106,7 @@ FIB_TOKEN_HEX_ID=$(
 )
 
 echo Store the $TOKEN_NAME token address as hex in .env file
-sed -i -r "s/^PUBLIC_FIB_TOKEN_ID='.*'$/PUBLIC_FIB_TOKEN_ID='${FIB_TOKEN_ADDRESS}'/" ./file.txt
+sed -i -r "s/^PUBLIC_FIB_TOKEN_ID='.*'$/PUBLIC_FIB_TOKEN_ID='${FIB_TOKEN_HEX_ID}'/" ./.env
 
 echo Deploy the fib faucet contract
 FIB_FAUCET_ADDRESS="$(
