@@ -46,7 +46,6 @@ export async function GET() {
 
         if (events.events?.length) {
             events.events.forEach(async (event) => {
-                console.log(event.id)
                 await prisma.sorobanEvent.create({
                     data: {
                         id: event.id,

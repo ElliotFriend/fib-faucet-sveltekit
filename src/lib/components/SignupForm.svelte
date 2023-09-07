@@ -87,8 +87,6 @@
 
         isDoingSomething = false
     }
-
-    onMount(() => getFreighterStuff())
 </script>
 
 <h2>Become a Member</h2>

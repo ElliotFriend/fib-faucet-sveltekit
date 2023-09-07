@@ -12,3 +12,4 @@ target
 .soroban
 .soroban-fib-faucet
 dev.sqlite
+.vercel
