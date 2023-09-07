@@ -1,7 +1,6 @@
 import { error } from '@sveltejs/kit'
-// import { getLatestLedger, getEvents } from '$lib/soroban/rpcMethods'
 import { Server } from 'soroban-client'
-import { PUBLIC_FIB_TOKEN_ID, PUBLIC_XLM_TOKEN_ID } from '$env/static/public'
+import { PUBLIC_FIB_TOKEN_ID } from '$env/static/public'
 import { prisma } from '$lib/server/prisma'
 
 const LEDGERS_IN_A_DAY = 12 * 60 * 24

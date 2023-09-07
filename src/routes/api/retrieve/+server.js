@@ -1,7 +1,5 @@
 import { prisma } from '$lib/server/prisma'
 import { error, json } from '@sveltejs/kit'
-import { xdr } from 'soroban-client'
-import * as fibFaucetContract from 'fib-faucet-contract'
 import { PUBLIC_FIB_TOKEN_ID } from '$env/static/public'
 
 /** @type {import('./$types').RequestHandler} */

@@ -9,10 +9,6 @@
     import * as fibFaucetContract from 'fib-faucet-contract'
     import { invalidate } from "$app/navigation"
 
-
-    // const ASSET_CODE = 'FIB'
-    // const ASSET_ISSUER = 'GDWZ54JXFUHAXN4CX4M52EKT7QGF4V2L2JLFVS2NBF2QN6VV76WBTXQZ'
-
     let publicKey = ''
     let network = ''
     let hasTrustline = false
@@ -38,6 +34,7 @@
 
     const checkForFibTrustlineAndBalance = async () => {
         isDoingSomething = true
+        /** @todo re-write this using the getLedgerEntries thing for the balance of the user. right? */
         let res = await fetch(`https://horizon-futurenet.stellar.org/accounts/${publicKey}`)
         let json = await res.json()
 

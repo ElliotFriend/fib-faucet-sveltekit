@@ -12,7 +12,6 @@ import {
 } from 'soroban-client'
 
 const RPC_SERVER_URL = 'https://rpc-futurenet.stellar.org'
-const HORIZON_SERVER_URL = 'https://horizon-futurenet.stellar.org'
 
 /**
  * @param {string} pubkey
