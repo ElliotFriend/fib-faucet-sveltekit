@@ -1,0 +1,23 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = "file:./dev.sqlite"
+}
+
+model SorobanEvent {
+    id          String @id
+    type        String
+    ledger      Int
+    contract_id String
+    topic_1     String?
+    topic_2     String?
+    topic_3     String?
+    topic_4     String?
+    value       String
+}

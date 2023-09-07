@@ -11,3 +11,4 @@ vite.config.ts.timestamp-*
 target
 .soroban
 .soroban-fib-faucet
+dev.sqlite

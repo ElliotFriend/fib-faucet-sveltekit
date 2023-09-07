@@ -1,8 +1,6 @@
 #![no_std]
 
-use soroban_sdk::{
-    contract, contractimpl, contractmeta, contracttype, token, Address, Env,
-};
+use soroban_sdk::{contract, contractimpl, contractmeta, contracttype, token, Address, Env};
 
 const STROOP: i128 = 10_000_000;
 
@@ -111,7 +109,7 @@ impl FibFaucetTrait for FibFaucet {
             panic!("member already exists")
         }
 
-        member.require_auth();
+        // member.require_auth();
 
         let LastPayments { last, last_last } = e
             .storage()
