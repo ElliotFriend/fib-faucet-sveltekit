@@ -109,7 +109,7 @@ impl FibFaucetTrait for FibFaucet {
             panic!("member already exists")
         }
 
-        // member.require_auth();
+        member.require_auth();
 
         let LastPayments { last, last_last } = e
             .storage()
