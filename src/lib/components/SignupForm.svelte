@@ -1,5 +1,4 @@
 <script>
-    import { onMount } from "svelte"
     import { error } from "@sveltejs/kit"
 
     import freigtherApi from "@stellar/freighter-api"
@@ -56,6 +55,7 @@
             let txXDR = await addFibTrustlineTransaction(publicKey, network)
             let signedTxXDR = await freigtherApi.signTransaction(txXDR, { network })
             console.log('here is signedTxXDR', signedTxXDR)
+            // @ts-ignore
             let sendResponse = await submitTransaction(signedTxXDR, network)
             console.log('here is sendResponse', sendResponse)
             if (sendResponse.status === 'SUCCESS') {

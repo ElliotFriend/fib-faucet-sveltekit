@@ -24,7 +24,12 @@ export async function GET() {
                 },
             ],
         })
-        console.log()
+
+        const latestLedgerIngested = await prisma.latestLedger.findFirst({
+            orderBy: {
+                ingested_date: 'desc',
+            },
+        })
 
         if (!mintEvents) throw 'no matching ingested events to retrieve'
 
@@ -34,7 +39,10 @@ export async function GET() {
         // console.log('firstEvent.topic_3', mintEvents.topic_3)
         // console.log('firstEvent.topic_4', mintEvents.topic_4)
         // console.log('firstEvent.value', mintEvents.value)
-        return json(mintEvents)
+        return json({
+            latest_ledger_ingested: latestLedgerIngested?.ledger_number ?? undefined,
+            events: mintEvents,
+        })
     } catch (/** @type {any} */ err) {
         throw error(500, { message: err.toString() || 'error retrieving ingested events' })
     }

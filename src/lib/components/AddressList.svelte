@@ -14,7 +14,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each $page.data.events as event}
+        {#each $page.data.events.events as event}
             {@const memberAddress = Address.fromScVal(xdr.ScVal.fromXDR(event.topic_3, 'base64')).toString()}
             {@const amountMinted = scValToBigInt(xdr.ScVal.fromXDR(event.value, 'base64')) / BigInt(10000000)}
             <tr>
