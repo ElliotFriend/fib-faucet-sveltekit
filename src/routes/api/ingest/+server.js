@@ -1,8 +1,9 @@
-import { error } from '@sveltejs/kit'
+import { error, json } from '@sveltejs/kit'
 import { Server } from 'soroban-client'
 import { PUBLIC_FIB_TOKEN_ID } from '$env/static/public'
 import { prisma } from '$lib/server/prisma'
 
+// One ledger every 5 seconds
 const LEDGERS_IN_A_DAY = 12 * 60 * 24
 const server = new Server('https://rpc-futurenet.stellar.org')
 
@@ -15,32 +16,57 @@ const filters = [
     },
 ]
 
+/**
+ *
+ * @param {number} latestLedger
+ * @returns {Promise<import('soroban-client').SorobanRpc.GetEventsResponse>}
+ */
+const getEventsFrom24HoursAgo = async (latestLedger) => {
+    // const latestLedger = await server.getLatestLedger()
+    return server.getEvents({
+        // rounding up to the nearest 100s, because... (??)
+        startLedger: Math.ceil((latestLedger - LEDGERS_IN_A_DAY) / 100) * 100,
+        filters: filters,
+    })
+}
+
 /** @type {import('./$types').RequestHandler} */
 export async function GET() {
     try {
-        const latestEventIngested = await prisma.sorobanEvent.findFirst({
+        // const latestEventIngested = await prisma.sorobanEvent.findFirst({
+        //     orderBy: [
+        //         {
+        //             id: 'desc',
+        //         },
+        //     ],
+        // })
+        const latestLedgerIngested = await prisma.latestLedger.findFirst({
             orderBy: [
                 {
-                    id: 'desc',
+                    ingested_date: 'desc',
                 },
             ],
         })
 
+        const latestLedger = await server.getLatestLedger()
         let events
-        if (latestEventIngested?.ledger) {
+        if (latestLedgerIngested?.ledger_number) {
             // pick up ingesting where we left off
             // console.log('i am finding events from:', latestEventIngested.id)
-            events = await server.getEvents({
-                startLedger: latestEventIngested.ledger + 1,
-                filters: filters,
-            })
+            /** @todo Figure out how to deal with a start ledger that is no longer held by the RPC server */
+            try {
+                events = await server.getEvents({
+                    startLedger: latestLedgerIngested.ledger_number + 1,
+                    filters: filters,
+                })
+            } catch (err) {
+                // an error here is likely (definitely?) because the latestEventIngested is older than 24-hours(-ish)
+                events = await getEventsFrom24HoursAgo(latestLedger.sequence)
+            }
         } else {
-            const latestLedger = await server.getLatestLedger()
+            // const latestLedger = await server.getLatestLedger()
             // console.log(latestLedger)
-            events = await server.getEvents({
-                startLedger: Math.ceil((latestLedger.sequence - LEDGERS_IN_A_DAY) / 100) * 100,
-                filters: filters,
-            })
+            events = await getEventsFrom24HoursAgo(latestLedger.sequence)
             // console.log('events.events.length', events.events.length)
         }
 
@@ -62,11 +88,16 @@ export async function GET() {
             })
         }
 
-        return new Response(
-            JSON.stringify({
-                ingested_events: events.events?.length || 0,
-            })
-        )
+        await prisma.latestLedger.create({
+            data: {
+                ledger_number: latestLedger.sequence,
+            },
+        })
+
+        return json({
+            ingested_events: events.events?.length || 0,
+            latest_ledger: latestLedger.sequence,
+        })
     } catch (err) {
         console.error('error on ingest', err)
         throw error(500, { message: 'error ingesting events' })

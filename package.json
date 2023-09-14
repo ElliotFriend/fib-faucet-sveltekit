@@ -8,8 +8,8 @@
         "preview": "vite preview",
         "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
-        "lint": "prettier --plugin-search-dir . --check . && eslint .",
-        "format": "prettier --plugin-search-dir . --write .",
+        "lint": "prettier --check . && eslint .",
+        "format": "prettier --write .",
         "build-contracts": "soroban contract bindings typescript --wasm ./target/wasm32-unknown-unknown/release/soroban_fib_faucet_contract.wasm --id $(cat ./.soroban-fib-faucet/fib_faucet_id) --rpc-url $(cat ./.soroban-fib-faucet/rpc-url) --network-passphrase \"$(cat ./.soroban-fib-faucet/passphrase)\" --output-dir ./.soroban/ --contract-name fib-faucet-contract",
         "postinstall": "prisma generate"
     },

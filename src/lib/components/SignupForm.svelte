@@ -18,6 +18,7 @@
     const getFreighterStuff = async () => {
         isDoingSomething = true
 
+        /** @todo check for `freighterApi.isAllowed()` to avoid displaying "connect freighter" if they've already connected */
         if (await freigtherApi.isConnected()) {
             try {
                 publicKey = await freigtherApi.getPublicKey()
