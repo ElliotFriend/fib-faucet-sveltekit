@@ -1,6 +1,5 @@
 import { prisma } from '$lib/server/prisma'
 import { error, json } from '@sveltejs/kit'
-import { PUBLIC_FIB_TOKEN_ID } from '$env/static/public'
 import { MERCURY_AUTH_EMAIL, MERCURY_AUTH_PASSWORD, MERCURY_GRAPHQL_URL } from '$env/static/private'
 
 /**
