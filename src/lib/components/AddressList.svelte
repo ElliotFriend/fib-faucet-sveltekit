@@ -14,9 +14,9 @@
         </tr>
       </thead>
       <tbody>
-        {#each $page.data.events.events as event}
-            {@const memberAddress = Address.fromScVal(xdr.ScVal.fromXDR(event.topic_3, 'base64')).toString()}
-            {@const amountMinted = scValToBigInt(xdr.ScVal.fromXDR(event.value, 'base64')) / BigInt(10000000)}
+        {#each $page.data.events.mint_events.sort((a, b) => b.ledgerTimestamp - a.ledgerTimestamp) as event}
+            {@const memberAddress = Address.fromScVal(xdr.ScVal.fromXDR(event.topic3, 'base64')).toString()}
+            {@const amountMinted = scValToBigInt(xdr.ScVal.fromXDR(event.data, 'base64')) / BigInt(10000000)}
             <tr>
             <td>
                 <div class="flex items-center space-x-3">
